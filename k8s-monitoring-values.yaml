@@ -68,7 +68,7 @@ prometheusOperator:
 
 # Disable other exporters
 kubeApiServer:
-  enabled: true
+  enabled: false
 
 kubeControllerManager:
   enabled: false
