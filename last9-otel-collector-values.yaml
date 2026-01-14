@@ -88,7 +88,6 @@ configMap:
   # ConfigMap template, as it enables pod restart via a template checksum annotation.
   # existingPath: ""
 
-
 # When enabled, the chart will configure the collector to emit its traces, metrics, and logs over http via the OTLP using the Otel Go SDK.
 # If internalTelemetryViaOTLP.metrics.enabled Ithe chart will remove the default prometheus receiver (which was configured to scrape the Collector's metrics)
 # and the service.telemetry.metrics.address value.
@@ -160,6 +159,14 @@ config:
             # set(attributes["<key>"], value)
             - set(attributes["deployment.environment"], "local")
             - set(attributes["cluster.name"], "minikube")
+    filter/namespace:
+      error_mode: ignore
+      logs:
+        log_record:
+          # 1. Drop logs that don't have a namespace attribute at all (e.g. internal collector logs)
+          - 'resource.attributes["k8s.namespace.name"] == nil'
+          # 2. Drop logs that don't EXACTLY match your allowed list
+          - 'not IsMatch(resource.attributes["k8s.namespace.name"], "^(dev|stage|prod|de-stage|de-prod)$")'
     memory_limiter/logs:
       # check_interval is the time between measurements of memory usage.
       check_interval: 5s
@@ -202,6 +209,7 @@ config:
         processors:
           - memory_limiter/logs
           - k8sattributes
+          - filter/namespace
           - transform/logs/last9
           - batch
         exporters:
@@ -218,10 +226,9 @@ config:
         receivers:
           - otlp
         processors:
-          - batch          
+          - batch
         exporters:
           - otlp/last9
- 
 
 # Helm currently has an issue (https://github.com/helm/helm/pull/12879) when using null to remove
 # default configuration from a subchart. The result is that you cannot remove default configuration
@@ -701,6 +708,3 @@ networkPolicy:
 
 # Allow containers to share processes across pod namespace
 shareProcessNamespace: false
-
-
-

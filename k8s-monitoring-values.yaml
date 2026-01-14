@@ -40,6 +40,9 @@ prometheus:
           - sourceLabels: [__name__]
             regex: "up|kube_deployment_spec_replicas|kube_deployment_status_replicas_(ready|updated|available|unavailable)|kube_pod_status_phase|kube_pod_created|kube_pod_container_status_(running|restarts_total|waiting_reason|terminated|last_terminated_reason|terminated_reason)|kube_pod_info|kube_pod_container_info|kube_pod_owner|kube_statefulset_(created|replicas|status_replicas_(ready|updated|available|unavailable)|spec_replicas|info)|kube_pod_container_resource_(requests|limits)|container_cpu_usage_seconds_total|container_memory_(working_set_bytes|usage_bytes)|container_fs_(reads|writes)_bytes_total|container_network_(receive|transmit)_(bytes|errors)_total|container_cpu_cfs_throttled_periods_total"
             action: keep
+          # - sourceLabels: [namespace]
+          #   regex: "kube-system|kube-public"
+          #   action: drop
 
 # Keep kube-state-metrics
 kubeStateMetrics:

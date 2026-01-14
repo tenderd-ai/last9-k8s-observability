@@ -88,7 +88,6 @@ configMap:
   # ConfigMap template, as it enables pod restart via a template checksum annotation.
   # existingPath: ""
 
-
 # When enabled, the chart will configure the collector to emit its traces, metrics, and logs over http via the OTLP using the Otel Go SDK.
 # If internalTelemetryViaOTLP.metrics.enabled Ithe chart will remove the default prometheus receiver (which was configured to scrape the Collector's metrics)
 # and the service.telemetry.metrics.address value.
@@ -297,9 +296,9 @@ config:
           mode: pull
           interval: 120s
         # Secrets referenced by Pods (metadata only, not data)
-        - name: secrets
-          mode: pull
-          interval: 120s
+        # - name: secrets
+        #   mode: pull
+        #   interval: 120s
         # PersistentVolumeClaims mounted by Pods
         - name: persistentvolumeclaims
           mode: pull
@@ -352,7 +351,6 @@ config:
           - batch
         exporters:
           - otlp/last9
- 
 
 # Helm currently has an issue (https://github.com/helm/helm/pull/12879) when using null to remove
 # default configuration from a subchart. The result is that you cannot remove default configuration
@@ -413,12 +411,12 @@ clusterRole:
   rules:
     # Core API resources for topology
     - apiGroups:
-        - ''
+        - ""
       resources:
         - pods
         - services
         - configmaps
-        - secrets
+        # - secrets
         - persistentvolumeclaims
         - namespaces
       verbs:
@@ -869,4 +867,3 @@ networkPolicy:
 
 # Allow containers to share processes across pod namespace
 shareProcessNamespace: false
-
