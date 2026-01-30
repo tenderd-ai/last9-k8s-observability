@@ -27,3 +27,13 @@
     password=<password> \
     env=de-stage \
     cluster=tenderd-de-stage-eks
+
+# Production Environment
+./last9-otel-setup.sh \
+    endpoint="https://otlp.last9.io:443" \
+    token=<token> \
+    monitoring-endpoint=<monitoring-endpoint> \
+    username=<username> \
+    password=<password> \
+    env=production \
+    cluster=tenderd-production-eks
