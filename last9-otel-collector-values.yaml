@@ -27,8 +27,8 @@ presets:
   # Best used with mode = daemonset.
   # See https://opentelemetry.io/docs/kubernetes/collector/components/#filelog-receiver for details on the receiver.
   logsCollection:
-    enabled: true
-    includeCollectorLogs: true
+    enabled: false # Disabled to use custom filelog receiver with namespace filtering
+    includeCollectorLogs: false
     # Enabling this writes checkpoints in /var/lib/otelcol/ host directory.
     # Note this changes collector's user to root, so that it can write to host directory.
     storeCheckpoints: false
@@ -159,14 +159,6 @@ config:
             # set(attributes["<key>"], value)
             - set(attributes["deployment.environment"], "local")
             - set(attributes["cluster.name"], "minikube")
-    filter/namespace:
-      error_mode: ignore
-      logs:
-        log_record:
-          # 1. Drop logs that don't have a namespace attribute at all (e.g. internal collector logs)
-          - 'resource.attributes["k8s.namespace.name"] == nil'
-          # 2. Drop logs that don't EXACTLY match your allowed list
-          - 'not IsMatch(resource.attributes["k8s.namespace.name"], "^(dev|stage|prod|de-stage|de-prod)$")'
     memory_limiter/logs:
       # check_interval is the time between measurements of memory usage.
       check_interval: 5s
@@ -175,6 +167,33 @@ config:
       # By default spike_limit_mib is set to 15% of ".Values.resources.limits.memory"
       spike_limit_percentage: 15
   receivers:
+    # Custom filelog receiver to only collect logs from specific namespaces
+    # This overrides the preset's default filelog configuration
+    filelog:
+      include:
+        # Only include logs from these specific namespaces
+        # Path format: /var/log/pods/{namespace}_{pod-name}_{pod-uid}/{container}/*.log
+        - /var/log/pods/kube-system_*/*/*.log
+        - /var/log/pods/karpenter_*/*/*.log
+        - /var/log/pods/argocd_*/*/*.log
+        - /var/log/pods/monitoring_*/*/*.log
+        - /var/log/pods/stage_*/*/*.log
+        - /var/log/pods/prod_*/*/*.log
+        - /var/log/pods/prod-ksa_*/*/*.log
+        - /var/log/pods/de-stage_*/*/*.log
+        - /var/log/pods/de-prod_*/*/*.log
+      exclude:
+        # Exclude collector's own logs to prevent feedback loop
+        - /var/log/pods/*/opentelemetry-collector/*.log
+        - /var/log/pods/*/node-exporter/*.log
+      start_at: end
+      include_file_path: true
+      include_file_name: false
+      operators:
+        # Parse container runtime logs (CRI format)
+        - type: container
+          id: container-parser
+          max_log_size: 102400
     otlp:
       protocols:
         grpc:
@@ -209,7 +228,6 @@ config:
         processors:
           - memory_limiter/logs
           - k8sattributes
-          - filter/namespace
           - transform/logs/last9
           - batch
         exporters:
