@@ -255,54 +255,55 @@ config:
                   - ${env:MY_POD_IP}:8888
     # K8s resource topology receiver - collects ownerReferences and selectors for dependency graphs
     # Pulls full object metadata periodically to enable resource relationship visualization
-    k8sobjects/topology:
-      auth_type: serviceAccount
-      objects:
-        # Pods with ownerReferences to link to Deployments/ReplicaSets/StatefulSets/DaemonSets
-        - name: pods
-          mode: pull
-          interval: 60s
-        # ReplicaSets with ownerReferences to Deployments
-        - name: replicasets
-          mode: pull
-          interval: 60s
-          group: apps
-        # Deployments as top-level workload controllers
-        - name: deployments
-          mode: pull
-          interval: 60s
-          group: apps
-        # StatefulSets as workload controllers
-        - name: statefulsets
-          mode: pull
-          interval: 60s
-          group: apps
-        # DaemonSets as workload controllers
-        - name: daemonsets
-          mode: pull
-          interval: 60s
-          group: apps
-        # Services with selectors to link to Pods
-        - name: services
-          mode: pull
-          interval: 60s
-        # Ingresses with backend references to Services
-        - name: ingresses
-          mode: pull
-          interval: 120s
-          group: networking.k8s.io
-        # ConfigMaps referenced by Pods
-        - name: configmaps
-          mode: pull
-          interval: 120s
-        # Secrets referenced by Pods (metadata only, not data)
-        # - name: secrets
-        #   mode: pull
-        #   interval: 120s
-        # PersistentVolumeClaims mounted by Pods
-        - name: persistentvolumeclaims
-          mode: pull
-          interval: 120s
+    # DISABLED: Uncomment below to re-enable topology collection
+    # k8sobjects/topology:
+    #   auth_type: serviceAccount
+    #   objects:
+    #     # Pods with ownerReferences to link to Deployments/ReplicaSets/StatefulSets/DaemonSets
+    #     - name: pods
+    #       mode: pull
+    #       interval: 60s
+    #     # ReplicaSets with ownerReferences to Deployments
+    #     - name: replicasets
+    #       mode: pull
+    #       interval: 60s
+    #       group: apps
+    #     # Deployments as top-level workload controllers
+    #     - name: deployments
+    #       mode: pull
+    #       interval: 60s
+    #       group: apps
+    #     # StatefulSets as workload controllers
+    #     - name: statefulsets
+    #       mode: pull
+    #       interval: 60s
+    #       group: apps
+    #     # DaemonSets as workload controllers
+    #     - name: daemonsets
+    #       mode: pull
+    #       interval: 60s
+    #       group: apps
+    #     # Services with selectors to link to Pods
+    #     - name: services
+    #       mode: pull
+    #       interval: 60s
+    #     # Ingresses with backend references to Services
+    #     - name: ingresses
+    #       mode: pull
+    #       interval: 120s
+    #       group: networking.k8s.io
+    #     # ConfigMaps referenced by Pods
+    #     - name: configmaps
+    #       mode: pull
+    #       interval: 120s
+    #     # Secrets referenced by Pods (metadata only, not data)
+    #     # - name: secrets
+    #     #   mode: pull
+    #     #   interval: 120s
+    #     # PersistentVolumeClaims mounted by Pods
+    #     - name: persistentvolumeclaims
+    #       mode: pull
+    #       interval: 120s
   service:
     telemetry:
       metrics:
@@ -327,15 +328,16 @@ config:
           - otlp/last9
       # K8s resource topology pipeline - collects resource relationships for dependency graphs
       # Data is queryable via service_name="k8s-topology" in Last9 logs
-      logs/topology:
-        receivers:
-          - k8sobjects/topology
-        processors:
-          - memory_limiter/logs
-          - transform/topology
-          - batch
-        exporters:
-          - otlp/last9
+      # DISABLED: Uncomment below to re-enable topology logs
+      # logs/topology:
+      #   receivers:
+      #     - k8sobjects/topology
+      #   processors:
+      #     - memory_limiter/logs
+      #     - transform/topology
+      #     - batch
+      #   exporters:
+      #     - otlp/last9
       metrics:
         receivers:
           - otlp
