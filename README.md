@@ -248,6 +248,28 @@ That's it! Your application metrics will be automatically:
 - **Enriched** - With pod, namespace, node labels
 - **Exported** - To Last9 via Prometheus remote write
 
+### Tiger Data Scraping
+
+`last9-otel-collector-metrics-values.yaml` also includes a dedicated `tiger-data` scrape job:
+
+```yaml
+- job_name: 'tiger-data'
+  metrics_path: /metrics
+  basic_auth:
+    username: ${env:TIGER_DATA_USERNAME}
+    password: ${env:TIGER_DATA_PASSWORD}
+  static_configs:
+    - targets: ['${env:TIGER_DATA_URL}']
+```
+
+Create the credentials secret in the collector namespace before deploying:
+
+```bash
+kubectl apply -f tiger-data-secret.yaml
+```
+
+Update `tiger-data-secret.yaml` with the Tiger Data target, username, and password. The `url` value must be a Prometheus target such as `tiger-data.default.svc.cluster.local:8080`; update `metrics_path` if Tiger Data exposes metrics on a different path.
+
 ### How It Works
 
 1. **Automatic Discovery** - OTel Collector watches Kubernetes API for all pods/services
