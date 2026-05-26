@@ -22,23 +22,6 @@ clusterRole:
         - /metrics
       verbs: ["get"]
 
-extraEnvs:
-  - name: TIGER_DATA_URL
-    valueFrom:
-      secretKeyRef:
-        name: tiger-data-metrics-credentials
-        key: url
-  - name: TIGER_DATA_USERNAME
-    valueFrom:
-      secretKeyRef:
-        name: tiger-data-metrics-credentials
-        key: username
-  - name: TIGER_DATA_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: tiger-data-metrics-credentials
-        key: password
-
 # Base collector configuration for metrics scraping
 config:
   exporters:
@@ -81,21 +64,6 @@ config:
             scrape_interval: 30s
             static_configs:
               - targets: ['${env:MY_POD_IP}:8888']
-
-          # Tiger Data metrics
-          - job_name: 'tiger-data'
-            scrape_interval: 30s
-            scrape_timeout: 10s
-            metrics_path: /metrics
-            honor_labels: true
-            basic_auth:
-              username: ${env:TIGER_DATA_USERNAME}
-              password: ${env:TIGER_DATA_PASSWORD}
-            static_configs:
-              - targets: ['${env:TIGER_DATA_URL}']
-                labels:
-                  service: tiger-data
-                  namespace: default
 
           # Application metrics via pod annotations (standard Prometheus annotations)
           - job_name: 'kubernetes-pods'

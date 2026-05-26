@@ -77,6 +77,20 @@ For cluster metrics and monitoring:
   password="<your-password>"
 ```
 
+To also scrape Tiger Data/Postgres metrics with Prometheus:
+
+```bash
+./last9-otel-setup.sh monitoring-only \
+  monitoring-endpoint="<your-metrics-endpoint>" \
+  username="<your-username>" \
+  password="<your-password>" \
+  tiger-data-url="<host:port>" \
+  tiger-data-username="<metrics-username>" \
+  tiger-data-password="<metrics-password>"
+```
+
+When these optional arguments are provided, the script creates a Prometheus additional scrape config secret and enables a dedicated `tiger-data` job in the monitoring stack.
+
 ### Option 5: Kubernetes Events Only
 
 For Kubernetes events collection:
@@ -247,28 +261,6 @@ That's it! Your application metrics will be automatically:
 - **Scraped** - Every 30 seconds by default
 - **Enriched** - With pod, namespace, node labels
 - **Exported** - To Last9 via Prometheus remote write
-
-### Tiger Data Scraping
-
-`last9-otel-collector-metrics-values.yaml` also includes a dedicated `tiger-data` scrape job:
-
-```yaml
-- job_name: 'tiger-data'
-  metrics_path: /metrics
-  basic_auth:
-    username: ${env:TIGER_DATA_USERNAME}
-    password: ${env:TIGER_DATA_PASSWORD}
-  static_configs:
-    - targets: ['${env:TIGER_DATA_URL}']
-```
-
-Create the credentials secret in the collector namespace before deploying:
-
-```bash
-kubectl apply -f tiger-data-secret.yaml
-```
-
-Update `tiger-data-secret.yaml` with the Tiger Data target, username, and password. The `url` value must be a Prometheus target such as `tiger-data.default.svc.cluster.local:8080`; update `metrics_path` if Tiger Data exposes metrics on a different path.
 
 ### How It Works
 
