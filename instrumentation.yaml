@@ -70,6 +70,8 @@ spec:
         value: gzip
       - name: OTEL_EXPORTER_OTLP_TIMEOUT
         value: "10"
+      - name: OTEL_METRICS_EXPORTER
+        value: none
       - name: OTEL_LOGS_EXPORTER
         value: none
       - name: OTEL_RESOURCE_ATTRIBUTES
